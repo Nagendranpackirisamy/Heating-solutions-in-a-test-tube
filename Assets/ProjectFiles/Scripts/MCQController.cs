@@ -22,6 +22,10 @@ public class MCQController : MonoBehaviour
 
     // -------------------------------------------------
 
+    [Header("Slide Binding")]
+    [Tooltip("Page number of the slide this MCQ belongs to")]
+    public int slidePageNumber;
+
     [Header("Panels")]
     public GameObject mcqPanel;
     public GameObject explanationPanel;
@@ -50,20 +54,14 @@ public class MCQController : MonoBehaviour
     [Header("Data")]
     public MCQQuestionData questionData;
 
-    // ⭐ YOUR SLIDE MANAGER
+    [Header("Slide Manager")]
     public SlideCameraController slideManager;
-
-    // -------------------------------------------------
-    // ⭐⭐ NEW EVENTS ⭐⭐
-    // -------------------------------------------------
 
     [Header("Events")]
     public UnityEvent onCorrectOptionSelected;
     public UnityEvent onWrongOptionSelected;
 
-    // -------------------------------------------------
-
-    private int attemptCount;
+    int attemptCount;
 
     // -------------------------------------------------
 
@@ -78,12 +76,10 @@ public class MCQController : MonoBehaviour
 
     LocalState GetState()
     {
-        int index = slideManager.currentSlide;
+        if (!slideMemory.ContainsKey(slidePageNumber))
+            slideMemory[slidePageNumber] = new LocalState();
 
-        if (!slideMemory.ContainsKey(index))
-            slideMemory[index] = new LocalState();
-
-        return slideMemory[index];
+        return slideMemory[slidePageNumber];
     }
 
     // -------------------------------------------------

@@ -10,14 +10,23 @@ public class SlideCameraController : MonoBehaviour
     [System.Serializable]
     public class Step
     {
-        public Transform cameraPoint;
-        public GameObject slideUI;
+        [Header("Identification")]
+        [Tooltip("Logical page number / ID (not list index)")]
+        public int pageNumber;
 
+        [Header("Camera")]
+        public Transform cameraPoint;
+
+        [Header("UI")]
+        public GameObject slideUI;
+        [Tooltip("CanvasGroup used for smooth fade (required)")]
+        public CanvasGroup canvasGroup;
+
+        [Header("Events")]
         public UnityEvent onNextClicked;
         public UnityEvent onBackClicked;
         public UnityEvent onRepeatedNextClicked;
 
-        // ===== SPECIAL UI =====
         [Header("Special UI Controls")]
         public bool enableNextOnStart = false;
 
@@ -30,99 +39,103 @@ public class SlideCameraController : MonoBehaviour
 
     [Header("Camera")]
     public Transform cameraTransform;
-    public float moveSpeed = 2f;
+
+    // ================= CAMERA MOTION (INSPECTOR-CONTROLLED) =================
+    [Header("Camera Movement")]
+    [Min(0.1f)]
+    [Tooltip("Total duration of camera movement")]
+    public float moveDuration = 1.5f;
+
+    [Header("Camera Motion Curves")]
+    [Tooltip("Controls camera POSITION interpolation")]
+    [SerializeField]
+    private AnimationCurve positionCurve =
+        AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Tooltip("Controls camera ROTATION interpolation")]
+    [SerializeField]
+    private AnimationCurve rotationCurve =
+        AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+    // =======================================================================
 
     [Header("Steps")]
     public List<Step> steps;
 
+    [Header("Navigation Buttons")]
     public Button nextButton;
     public Button previousButton;
 
     [Header("Slide Counter UI")]
     public TextMeshProUGUI slideCounterText;
 
-    [Header("Slide Counter Values")]
-    public int currentSlide = 0;
-    public int totalSlides = 0;
-
-    [Header("Debug / Cheat")]
+    [Header("Debug")]
     public bool enableCheatKey = true;
 
-    int currentIndex = 0;
-    bool isMoving = false;
+    int currentIndex;
+    bool isMoving;
 
-    // ===== STATE SYSTEM =====
     bool[] slideCompleted;
     bool[] slideLocked;
-    bool[] slideVisited;
     bool[] eventUsed;
-    // ========================
 
     void Start()
     {
         slideCompleted = new bool[steps.Count];
         slideLocked = new bool[steps.Count];
-        slideVisited = new bool[steps.Count];
         eventUsed = new bool[steps.Count];
 
-        currentSlide = 0;
-        UpdateSlideCounterUI();
+        foreach (var step in steps)
+        {
+            if (step.slideUI != null)
+                step.slideUI.SetActive(true);
 
-        foreach (var s in steps)
-            s.slideUI.SetActive(false);
+            if (step.canvasGroup != null)
+            {
+                step.canvasGroup.alpha = 0f;
+                step.canvasGroup.interactable = false;
+                step.canvasGroup.blocksRaycasts = false;
+            }
+        }
 
-        // ----- FIRST SLIDE -----
-        steps[0].slideUI.SetActive(true);
+        currentIndex = 0;
 
         cameraTransform.position = steps[0].cameraPoint.position;
         cameraTransform.rotation = steps[0].cameraPoint.rotation;
 
-        nextButton.interactable = false;
-        UpdateBackButton();
-
-        // ⭐ Apply for first slide
+        ShowSlideInstant(steps[0]);
         ApplyStepSettings(0);
+
         nextButton.interactable = slideCompleted[0];
+        UpdateBackButton();
+        UpdateSlideCounterUI();
     }
 
     void Update()
     {
-        if (enableCheatKey && Input.GetKeyDown(KeyCode.N))
-        {
-            ForceNextSlide_Cheat();
-        }
+        if (!enableCheatKey) return;
 
-#if ENABLE_INPUT_SYSTEM
-        if (enableCheatKey &&
-            UnityEngine.InputSystem.Keyboard.current != null &&
-            UnityEngine.InputSystem.Keyboard.current.nKey.wasPressedThisFrame)
-        {
+        if (Input.GetKeyDown(KeyCode.N))
             ForceNextSlide_Cheat();
-        }
-#endif
     }
 
     void ForceNextSlide_Cheat()
     {
-        if (currentIndex >= steps.Count - 1)
-            return;
+        if (currentIndex >= steps.Count - 1) return;
 
         StopAllCoroutines();
         isMoving = false;
 
         slideCompleted[currentIndex] = true;
         slideLocked[currentIndex] = true;
-
         nextButton.interactable = true;
 
         StartCoroutine(MoveTo(currentIndex + 1));
     }
 
-    // ===== OVERRIDDEN =====
     public void EnableNextButton()
     {
         slideCompleted[currentIndex] = true;
-        slideLocked[currentIndex] = true;   // lock permanently
+        slideLocked[currentIndex] = true;
         nextButton.interactable = true;
     }
 
@@ -139,19 +152,15 @@ public class SlideCameraController : MonoBehaviour
         }
 
         steps[currentIndex].onRepeatedNextClicked?.Invoke();
-
         StartCoroutine(MoveTo(currentIndex + 1));
     }
 
     public void Previous()
     {
+        if (isMoving) return;
         if (currentIndex <= 0) return;
 
-        StopAllCoroutines();
-        isMoving = false;
-
         steps[currentIndex].onBackClicked?.Invoke();
-
         StartCoroutine(MoveTo(currentIndex - 1));
     }
 
@@ -159,68 +168,99 @@ public class SlideCameraController : MonoBehaviour
     {
         isMoving = true;
 
-        foreach (var s in steps)
-            s.slideUI.SetActive(false);
+        Step from = steps[currentIndex];
+        Step to = steps[targetIndex];
 
         Vector3 startPos = cameraTransform.position;
         Quaternion startRot = cameraTransform.rotation;
 
-        Vector3 endPos = steps[targetIndex].cameraPoint.position;
-        Quaternion endRot = steps[targetIndex].cameraPoint.rotation;
+        Vector3 endPos = to.cameraPoint.position;
+        Quaternion endRot = to.cameraPoint.rotation;
 
-        float t = 0;
+        float elapsed = 0f;
 
-        while (t < 1)
+        while (elapsed < moveDuration)
         {
-            t += Time.deltaTime * moveSpeed;
-            cameraTransform.position = Vector3.Lerp(startPos, endPos, t);
-            cameraTransform.rotation = Quaternion.Slerp(startRot, endRot, t);
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / moveDuration);
+
+            float posT = positionCurve.Evaluate(t);
+            float rotT = rotationCurve.Evaluate(t);
+
+            cameraTransform.position = Vector3.Lerp(startPos, endPos, posT);
+            cameraTransform.rotation = Quaternion.Slerp(startRot, endRot, rotT);
+
+            if (from.canvasGroup != null)
+                from.canvasGroup.alpha = 1f - t;
+
+            if (to.canvasGroup != null)
+                to.canvasGroup.alpha = t;
+
             yield return null;
         }
 
+        HideSlide(from);
+        ShowSlide(to);
+
         currentIndex = targetIndex;
-        currentSlide = currentIndex;
-
-        UpdateSlideCounterUI();
-
-        steps[currentIndex].slideUI.SetActive(true);
-
-        // ⭐ Apply state logic
         ApplyStepSettings(currentIndex);
 
         nextButton.interactable = slideCompleted[currentIndex];
         UpdateBackButton();
+        UpdateSlideCounterUI();
 
         isMoving = false;
     }
 
-    // ========== CORE STATE LOGIC ==========
+    void ShowSlide(Step step)
+    {
+        if (step.slideUI != null)
+            step.slideUI.SetActive(true);
+
+        if (step.canvasGroup != null)
+        {
+            step.canvasGroup.alpha = 1f;
+            step.canvasGroup.interactable = true;
+            step.canvasGroup.blocksRaycasts = true;
+        }
+    }
+
+    void HideSlide(Step step)
+    {
+        if (step.canvasGroup != null)
+        {
+            step.canvasGroup.alpha = 0f;
+            step.canvasGroup.interactable = false;
+            step.canvasGroup.blocksRaycasts = false;
+        }
+    }
+
+    void ShowSlideInstant(Step step)
+    {
+        if (step.slideUI != null)
+            step.slideUI.SetActive(true);
+
+        if (step.canvasGroup != null)
+        {
+            step.canvasGroup.alpha = 1f;
+            step.canvasGroup.interactable = true;
+            step.canvasGroup.blocksRaycasts = true;
+        }
+    }
+
     void ApplyStepSettings(int index)
     {
         Step s = steps[index];
 
-        // ----- Already finished slide -----
         if (slideLocked[index])
         {
             slideCompleted[index] = true;
-            nextButton.interactable = true;
-
-            if (s.numpadObject != null)
-                s.numpadObject.SetActive(false);
-
-            if (s.calculatorObject != null)
-                s.calculatorObject.SetActive(false);
-
+            DisableSpecialUI(s);
             return;
         }
 
-        // ----- First time visit -----
-        slideVisited[index] = true;
-
         if (s.enableNextOnStart)
-        {
             slideCompleted[index] = true;
-        }
 
         if (s.numpadObject != null)
             s.numpadObject.SetActive(s.showNumpad);
@@ -228,15 +268,14 @@ public class SlideCameraController : MonoBehaviour
         if (s.calculatorObject != null)
             s.calculatorObject.SetActive(s.showCalculator);
     }
-    // =====================================
 
-    public void EnableNextSlideNextButton()
+    void DisableSpecialUI(Step s)
     {
-        int nextIndex = currentIndex + 1;
-        if (nextIndex < steps.Count)
-        {
-            slideCompleted[nextIndex] = true;
-        }
+        if (s.numpadObject != null)
+            s.numpadObject.SetActive(false);
+
+        if (s.calculatorObject != null)
+            s.calculatorObject.SetActive(false);
     }
 
     void UpdateBackButton()
@@ -246,9 +285,9 @@ public class SlideCameraController : MonoBehaviour
 
     void UpdateSlideCounterUI()
     {
-        if (slideCounterText != null)
-        {
-            slideCounterText.text = (currentSlide + 1) + " / " + totalSlides;
-        }
+        if (slideCounterText == null) return;
+
+        slideCounterText.text =
+            $"Page {steps[currentIndex].pageNumber} / {steps.Count}";
     }
 }
