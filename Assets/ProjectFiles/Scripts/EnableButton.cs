@@ -1,26 +1,23 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class EnableButton : MonoBehaviour
 {
     [Header("Images to Track")]
     public GameObject[] imagesToCheck;
 
-    [Header("Target Button")]
-    public Button targetButton;
+    [Header("Event When All Active")]
+    public UnityEvent onAllImagesActive;
 
-    private void Start()
-    {
-        // Button starts disabled
-        targetButton.interactable = false;
-    }
+    private bool eventTriggered = false;
 
     private void Update()
     {
-        if (AreAllImagesActive())
+        if (!eventTriggered && AreAllImagesActive())
         {
-            targetButton.interactable = true;
-            enabled = false; // Stop checking once done (important for performance)
+            onAllImagesActive?.Invoke();
+            eventTriggered = true;
+            enabled = false; // stop checking
         }
     }
 
