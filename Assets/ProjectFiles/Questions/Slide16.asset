@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ba18922ef01d4d4c8990ab10d716134, type: 3}
+  m_Name: Slide16
+  m_EditorClassIdentifier: 
+  questionText: Which direction should the mouth of the test tube be pointed to?
+  referenceImage: {fileID: 0}
+  explanationText: You must hold the test tube facing away from yourself and others
+    to avoid hurting anyone due to spillage or bumping.
+  options:
+  - Towards yourself
+  - Towards the neighbour
+  - Towards the floor
+  - Towards the area away from everyone
+  correctOptionIndex: 3
+  correctDropId: 
+  correctValue: 0
+  tolerance: 0.1
