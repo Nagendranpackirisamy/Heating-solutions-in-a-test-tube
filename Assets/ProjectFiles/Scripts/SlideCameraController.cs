@@ -40,23 +40,18 @@ public class SlideCameraController : MonoBehaviour
     [Header("Camera")]
     public Transform cameraTransform;
 
-    // ================= CAMERA MOTION (INSPECTOR-CONTROLLED) =================
     [Header("Camera Movement")]
     [Min(0.1f)]
-    [Tooltip("Total duration of camera movement")]
     public float moveDuration = 1.5f;
 
     [Header("Camera Motion Curves")]
-    [Tooltip("Controls camera POSITION interpolation")]
     [SerializeField]
     private AnimationCurve positionCurve =
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
-    [Tooltip("Controls camera ROTATION interpolation")]
     [SerializeField]
     private AnimationCurve rotationCurve =
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-    // =======================================================================
 
     [Header("Steps")]
     public List<Step> steps;
@@ -171,34 +166,11 @@ public class SlideCameraController : MonoBehaviour
         Step from = steps[currentIndex];
         Step to = steps[targetIndex];
 
-        Vector3 startPos = cameraTransform.position;
-        Quaternion startRot = cameraTransform.rotation;
+        // Instant camera move
+        cameraTransform.position = to.cameraPoint.position;
+        cameraTransform.rotation = to.cameraPoint.rotation;
 
-        Vector3 endPos = to.cameraPoint.position;
-        Quaternion endRot = to.cameraPoint.rotation;
-
-        float elapsed = 0f;
-
-        while (elapsed < moveDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / moveDuration);
-
-            float posT = positionCurve.Evaluate(t);
-            float rotT = rotationCurve.Evaluate(t);
-
-            cameraTransform.position = Vector3.Lerp(startPos, endPos, posT);
-            cameraTransform.rotation = Quaternion.Slerp(startRot, endRot, rotT);
-
-            if (from.canvasGroup != null)
-                from.canvasGroup.alpha = 1f - t;
-
-            if (to.canvasGroup != null)
-                to.canvasGroup.alpha = t;
-
-            yield return null;
-        }
-
+        // Instant slide switch (no fade)
         HideSlide(from);
         ShowSlide(to);
 
@@ -210,6 +182,7 @@ public class SlideCameraController : MonoBehaviour
         UpdateSlideCounterUI();
 
         isMoving = false;
+        yield break;
     }
 
     void ShowSlide(Step step)
@@ -288,6 +261,6 @@ public class SlideCameraController : MonoBehaviour
         if (slideCounterText == null) return;
 
         slideCounterText.text =
-            $"Page {steps[currentIndex].pageNumber} / {steps.Count}";
+            $"{steps[currentIndex].pageNumber} / {steps.Count}";
     }
 }
