@@ -3,25 +3,56 @@ using UnityEngine.Events;
 
 public class EnableButton : MonoBehaviour
 {
-    [Header("Images to Track")]
+    [Header("Slide Binding")]
+    public SlideStateController stateController;
+    public int targetSlideIndex;
+
+    [Header("Images To Check")]
     public GameObject[] imagesToCheck;
 
     [Header("Event When All Active")]
     public UnityEvent onAllImagesActive;
 
     private bool eventTriggered = false;
+    private bool isActiveSlide = false;
 
-    private void Update()
+    void OnEnable()
     {
-        if (!eventTriggered && AreAllImagesActive())
+        stateController.OnSlideChanged.AddListener(OnSlideChanged);
+    }
+
+    void OnDisable()
+    {
+        stateController.OnSlideChanged.RemoveListener(OnSlideChanged);
+    }
+
+    void OnSlideChanged(int index)
+    {
+        isActiveSlide = (index == targetSlideIndex);
+        eventTriggered = false;
+
+        if (isActiveSlide)
         {
-            onAllImagesActive?.Invoke();
-            eventTriggered = true;
-            enabled = false; // stop checking
+            // Lock slide by default
+            // Do NOT complete it yet
         }
     }
 
-    private bool AreAllImagesActive()
+    void Update()
+    {
+        if (!isActiveSlide || eventTriggered)
+            return;
+
+        if (AreAllImagesActive())
+        {
+            eventTriggered = true;
+
+            stateController.CompleteCurrentSlide();
+            onAllImagesActive?.Invoke();
+        }
+    }
+
+    bool AreAllImagesActive()
     {
         foreach (GameObject img in imagesToCheck)
         {
