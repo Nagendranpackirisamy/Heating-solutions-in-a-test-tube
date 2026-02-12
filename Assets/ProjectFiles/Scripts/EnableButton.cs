@@ -1,30 +1,58 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class EnableButton : MonoBehaviour
 {
-    [Header("Images to Track")]
+    [Header("Slide Binding")]
+    public SlideStateController stateController;
+    public int targetSlideIndex;
+
+    [Header("Images To Check")]
     public GameObject[] imagesToCheck;
 
-    [Header("Target Button")]
-    public Button targetButton;
+    [Header("Event When All Active")]
+    public UnityEvent onAllImagesActive;
 
-    private void Start()
+    private bool eventTriggered = false;
+    private bool isActiveSlide = false;
+
+    void OnEnable()
     {
-        // Button starts disabled
-        targetButton.interactable = false;
+        stateController.OnSlideChanged.AddListener(OnSlideChanged);
     }
 
-    private void Update()
+    void OnDisable()
     {
-        if (AreAllImagesActive())
+        stateController.OnSlideChanged.RemoveListener(OnSlideChanged);
+    }
+
+    void OnSlideChanged(int index)
+    {
+        isActiveSlide = (index == targetSlideIndex);
+        eventTriggered = false;
+
+        if (isActiveSlide)
         {
-            targetButton.interactable = true;
-            enabled = false; // Stop checking once done (important for performance)
+            // Lock slide by default
+            // Do NOT complete it yet
         }
     }
 
-    private bool AreAllImagesActive()
+    void Update()
+    {
+        if (!isActiveSlide || eventTriggered)
+            return;
+
+        if (AreAllImagesActive())
+        {
+            eventTriggered = true;
+
+            stateController.CompleteCurrentSlide();
+            onAllImagesActive?.Invoke();
+        }
+    }
+
+    bool AreAllImagesActive()
     {
         foreach (GameObject img in imagesToCheck)
         {
