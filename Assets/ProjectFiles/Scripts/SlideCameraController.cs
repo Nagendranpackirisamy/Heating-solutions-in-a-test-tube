@@ -55,6 +55,9 @@ public class SlideCameraController : MonoBehaviour
 
     [Header("Steps")]
     public List<Step> steps;
+    
+    public int CurrentPageNumber => steps[currentIndex].pageNumber;
+
 
     [Header("Navigation Buttons")]
     public Button nextButton;
