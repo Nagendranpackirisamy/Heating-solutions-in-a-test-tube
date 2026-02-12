@@ -1,69 +1,58 @@
 using UnityEngine;
 using UnityEngine.Events;
-using System.Reflection;
 
 public class EnableButton : MonoBehaviour
 {
-    [Header("Slide Controller")]
-    public SlideCameraController slideController;
+    [Header("Slide Binding")]
+    public SlideStateController stateController;
+    public int targetSlideIndex;
 
-    [Header("Target Slide Number (pageNumber)")]
-    public int targetPageNumber;
-
-    [Header("Images to Track")]
+    [Header("Images To Check")]
     public GameObject[] imagesToCheck;
 
     [Header("Event When All Active")]
     public UnityEvent onAllImagesActive;
 
     private bool eventTriggered = false;
-    private bool hasLockedNavigation = false;
+    private bool isActiveSlide = false;
 
-    private FieldInfo currentIndexField;
-
-    private void Start()
+    void OnEnable()
     {
-        // Get private field "currentIndex" using reflection
-        currentIndexField = typeof(SlideCameraController)
-            .GetField("currentIndex", BindingFlags.NonPublic | BindingFlags.Instance);
+        stateController.OnSlideChanged.AddListener(OnSlideChanged);
     }
 
-    private void Update()
+    void OnDisable()
     {
-        if (slideController == null || currentIndexField == null)
-            return;
+        stateController.OnSlideChanged.RemoveListener(OnSlideChanged);
+    }
 
-        int currentIndex = (int)currentIndexField.GetValue(slideController);
+    void OnSlideChanged(int index)
+    {
+        isActiveSlide = (index == targetSlideIndex);
+        eventTriggered = false;
 
-        if (currentIndex < 0 || currentIndex >= slideController.steps.Count)
-            return;
-
-        int currentPage = slideController.steps[currentIndex].pageNumber;
-
-        // Lock navigation when this slide becomes active
-        if (!hasLockedNavigation && currentPage == targetPageNumber)
+        if (isActiveSlide)
         {
-            hasLockedNavigation = true;
-            slideController.nextButton.interactable = false;
-            slideController.previousButton.interactable = false;
-        }
-
-        // Run logic only on target slide
-        if (hasLockedNavigation && !eventTriggered && currentPage == targetPageNumber)
-        {
-            if (AreAllImagesActive())
-            {
-                eventTriggered = true;
-
-                slideController.EnableNextButton();
-                slideController.previousButton.interactable = true;
-
-                onAllImagesActive?.Invoke();
-            }
+            // Lock slide by default
+            // Do NOT complete it yet
         }
     }
 
-    private bool AreAllImagesActive()
+    void Update()
+    {
+        if (!isActiveSlide || eventTriggered)
+            return;
+
+        if (AreAllImagesActive())
+        {
+            eventTriggered = true;
+
+            stateController.CompleteCurrentSlide();
+            onAllImagesActive?.Invoke();
+        }
+    }
+
+    bool AreAllImagesActive()
     {
         foreach (GameObject img in imagesToCheck)
         {
