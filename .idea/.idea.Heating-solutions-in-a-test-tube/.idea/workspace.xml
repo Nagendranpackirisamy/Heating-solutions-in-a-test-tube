@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="36e153ea-f863-490d-af34-a6d292cdf7fa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/Testtube_19.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/Testtube_19.anim" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/test tube heating animation slide 19.controller" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/test tube heating animation slide 19.controller" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Prefabs/CuttingGlassRod/NekoLegends/Shaders/ShaderCandle/MaterialsAndTextures/Candle Flame Red.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Prefabs/CuttingGlassRod/NekoLegends/Shaders/ShaderCandle/MaterialsAndTextures/Candle Flame Red.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/Slide19Interaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/Slide19Interaction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/SlideCameraController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/SlideCameraController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Scene 15-28.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Scene 15-28.unity" afterDir="false" />
     </list>
@@ -20,8 +20,10 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Assets/ProjectFiles/Scripts/CustomDropDown.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/ProjectFiles/Scripts/Slide19Interaction.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/ProjectFiles/Scripts/Slide20FlameInteraction.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
