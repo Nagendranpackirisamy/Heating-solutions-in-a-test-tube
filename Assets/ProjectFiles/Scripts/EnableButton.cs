@@ -1,58 +1,69 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Reflection;
 
 public class EnableButton : MonoBehaviour
 {
-    [Header("Slide Binding")]
-    public SlideStateController stateController;
-    public int targetSlideIndex;
+    [Header("Slide Controller")]
+    public SlideCameraController slideController;
 
-    [Header("Images To Check")]
+    [Header("Target Slide Number (pageNumber)")]
+    public int targetPageNumber;
+
+    [Header("Images to Track")]
     public GameObject[] imagesToCheck;
 
     [Header("Event When All Active")]
     public UnityEvent onAllImagesActive;
 
     private bool eventTriggered = false;
-    private bool isActiveSlide = false;
+    private bool hasLockedNavigation = false;
 
-    void OnEnable()
+    private FieldInfo currentIndexField;
+
+    private void Start()
     {
-        stateController.OnSlideChanged.AddListener(OnSlideChanged);
+        // Get private field "currentIndex" using reflection
+        currentIndexField = typeof(SlideCameraController)
+            .GetField("currentIndex", BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
-    void OnDisable()
+    private void Update()
     {
-        stateController.OnSlideChanged.RemoveListener(OnSlideChanged);
-    }
-
-    void OnSlideChanged(int index)
-    {
-        isActiveSlide = (index == targetSlideIndex);
-        eventTriggered = false;
-
-        if (isActiveSlide)
-        {
-            // Lock slide by default
-            // Do NOT complete it yet
-        }
-    }
-
-    void Update()
-    {
-        if (!isActiveSlide || eventTriggered)
+        if (slideController == null || currentIndexField == null)
             return;
 
-        if (AreAllImagesActive())
-        {
-            eventTriggered = true;
+        int currentIndex = (int)currentIndexField.GetValue(slideController);
 
-            stateController.CompleteCurrentSlide();
-            onAllImagesActive?.Invoke();
+        if (currentIndex < 0 || currentIndex >= slideController.steps.Count)
+            return;
+
+        int currentPage = slideController.steps[currentIndex].pageNumber;
+
+        // Lock navigation when this slide becomes active
+        if (!hasLockedNavigation && currentPage == targetPageNumber)
+        {
+            hasLockedNavigation = true;
+            slideController.nextButton.interactable = false;
+            slideController.previousButton.interactable = false;
+        }
+
+        // Run logic only on target slide
+        if (hasLockedNavigation && !eventTriggered && currentPage == targetPageNumber)
+        {
+            if (AreAllImagesActive())
+            {
+                eventTriggered = true;
+
+                slideController.EnableNextButton();
+                slideController.previousButton.interactable = true;
+
+                onAllImagesActive?.Invoke();
+            }
         }
     }
 
-    bool AreAllImagesActive()
+    private bool AreAllImagesActive()
     {
         foreach (GameObject img in imagesToCheck)
         {
