@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class Slide19Interaction : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class Slide19Interaction : MonoBehaviour
     public Animator testTubeAnimator;
     public float animationDuration = 2f;
 
-    [Header("Slide 19 Camera Override")]
+    [Header("Camera Movement During Animation")]
     public Transform cameraTransform;
     public Transform overrideCameraPoint;
     public float cameraMoveDuration = 1.5f;
@@ -25,9 +24,6 @@ public class Slide19Interaction : MonoBehaviour
     private static bool slide19Completed = false;
     private bool isRunning = false;
 
-    // =================================================
-    // CLICK HANDLER (Single Object, Multi Slide Logic)
-    // =================================================
     void OnMouseDown()
     {
         int currentPage = slideController.CurrentPageNumber;
@@ -42,22 +38,21 @@ public class Slide19Interaction : MonoBehaviour
         }
     }
 
-    // =================================================
-    // SLIDE 19 BEHAVIOUR
-    // =================================================
+    // =====================================================
+    // SLIDE 19 LOGIC
+    // =====================================================
     void HandleSlide19()
     {
         if (isRunning) return;
         if (slide19Completed) return;
 
-        StartCoroutine(PlaySlide19Sequence());
+        StartCoroutine(PlaySequence());
     }
 
-    IEnumerator PlaySlide19Sequence()
+    IEnumerator PlaySequence()
     {
         isRunning = true;
 
-        // Lock navigation
         slideController.nextButton.interactable = false;
         slideController.previousButton.interactable = false;
 
@@ -67,16 +62,27 @@ public class Slide19Interaction : MonoBehaviour
         testTubeAnimator.ResetTrigger("Play");
         testTubeAnimator.SetTrigger("Play");
 
-        // Move camera
+        // Move camera while animation plays
         yield return StartCoroutine(MoveCamera());
 
-        // Wait remaining animation time
+        // Wait remaining animation time if needed
         if (animationDuration > cameraMoveDuration)
         {
             yield return new WaitForSeconds(animationDuration - cameraMoveDuration);
         }
 
         slide19Completed = true;
+
+        // 🔥 CRITICAL PART:
+        // Change anchor reference permanently after completion
+        foreach (var step in slideController.steps)
+        {
+            if (step.pageNumber == slide19PageNumber)
+            {
+                step.cameraPoint = overrideCameraPoint;
+                break;
+            }
+        }
 
         slideController.EnableNextButton();
         slideController.previousButton.interactable = true;
@@ -100,8 +106,11 @@ public class Slide19Interaction : MonoBehaviour
             float t = Mathf.Clamp01(elapsed / cameraMoveDuration);
             float curveT = cameraCurve.Evaluate(t);
 
-            cameraTransform.position = Vector3.Lerp(startPos, endPos, curveT);
-            cameraTransform.rotation = Quaternion.Slerp(startRot, endRot, curveT);
+            cameraTransform.position =
+                Vector3.Lerp(startPos, endPos, curveT);
+
+            cameraTransform.rotation =
+                Quaternion.Slerp(startRot, endRot, curveT);
 
             yield return null;
         }
@@ -110,12 +119,21 @@ public class Slide19Interaction : MonoBehaviour
         cameraTransform.rotation = endRot;
     }
 
-    // =================================================
-    // SLIDE 20 BEHAVIOUR
-    // =================================================
+    // =====================================================
+    // SLIDE 20 LOGIC
+    // =====================================================
+    private bool slide20Completed = false;
+
     void HandleSlide20()
     {
+        if (slide20Completed) return;
+
         if (slide20Flame != null)
             slide20Flame.SetActive(false);
+
+        slideController.EnableNextButton();
+
+        slide20Completed = true;
     }
+
 }
