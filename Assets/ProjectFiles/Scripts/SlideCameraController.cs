@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
@@ -56,6 +56,9 @@ public class SlideCameraController : MonoBehaviour
     [Header("Steps")]
     public List<Step> steps;
     
+    public int CurrentPageNumber => steps[currentIndex].pageNumber;
+
+
     public int CurrentPageNumber => steps[currentIndex].pageNumber;
 
 
@@ -162,6 +165,20 @@ public class SlideCameraController : MonoBehaviour
         StartCoroutine(MoveTo(currentIndex - 1));
     }
     
+    bool ShouldAnimate(int fromIndex, int toIndex)
+    {
+        // Only animate when moving forward
+        if (toIndex > fromIndex)
+        {
+            // Animate only first time entering that slide
+            if (!slideLocked[toIndex])
+                return true;
+        }
+
+        return false;
+    }
+
+
     bool ShouldAnimate(int fromIndex, int toIndex)
     {
         // Only animate when moving forward

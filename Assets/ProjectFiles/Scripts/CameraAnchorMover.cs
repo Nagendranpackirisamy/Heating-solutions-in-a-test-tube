@@ -1,72 +1,176 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.Events;
+using System.Collections.Generic;
 
 public class CameraAnchorMover : MonoBehaviour
 {
-    [Header("Camera Anchors")]
-    public Transform[] cameraAnchors;
-
-    [Header("Movement")]
-    public float moveSpeed = 2f;
-
-    [Header("Camera Move Event")]
-    public UnityEvent OnCameraMoveStart;   // 🔊 Audio event here
-
-    private Camera mainCamera;
-    private Coroutine moveRoutine;
-
-    void Awake()
+    [System.Serializable]
+    public class PageCameraData
     {
-        mainCamera = Camera.main;
+        [Header("Page Info")]
+        public int pageNumber;
 
-        if (mainCamera == null)
+        [Header("Move Points")]
+        public Transform[] movePoints;
+
+        [Header("Final Position")]
+        public Transform finalPosition;
+    }
+
+    [Header("Slide Controller Reference")]
+    public SlideCameraController slideController;
+
+    [Header("Camera")]
+    public Transform cameraTransform;
+
+    [Header("Movement Settings")]
+    public float moveDuration = 1f;
+    public AnimationCurve moveCurve =
+        AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    [Header("Pages")]
+    public List<PageCameraData> pages = new List<PageCameraData>();
+
+    private Dictionary<int, Transform> lockedFinalPositions =
+        new Dictionary<int, Transform>();
+
+    private Coroutine moveRoutine;
+    private int lastPage = -1;
+
+    void Start()
+    {
+        if (cameraTransform == null)
         {
-            Debug.LogError("No Camera tagged as MainCamera found!");
+            Camera cam = Camera.main;
+            if (cam != null)
+                cameraTransform = cam.transform;
+        }
+
+        if (slideController != null)
+            lastPage = slideController.CurrentPageNumber;
+    }
+
+    void Update()
+    {
+        if (slideController == null) return;
+
+        int currentPage = slideController.CurrentPageNumber;
+
+        // Detect page change automatically
+        if (currentPage != lastPage)
+        {
+            lastPage = currentPage;
+            ApplyLockedPosition(currentPage);
         }
     }
 
-    // 🔘 Call this from Button (pass anchor index)
-    public void MoveCameraToIndex(int anchorIndex)
+    PageCameraData GetPage(int pageNumber)
     {
-        if (mainCamera == null)
-            return;
-
-        if (cameraAnchors == null || cameraAnchors.Length == 0)
-            return;
-
-        if (anchorIndex < 0 || anchorIndex >= cameraAnchors.Length)
+        foreach (var p in pages)
         {
-            Debug.LogWarning("Invalid camera anchor index: " + anchorIndex);
-            return;
+            if (p.pageNumber == pageNumber)
+                return p;
         }
+        return null;
+    }
 
-        if (moveRoutine != null)
-            StopCoroutine(moveRoutine);
-
-        // 🔊 FIRE EVENT WHEN CAMERA STARTS MOVING
-        OnCameraMoveStart?.Invoke();
-
-        moveRoutine = StartCoroutine(SmoothMove(cameraAnchors[anchorIndex]));
+    int GetCurrentPage()
+    {
+        if (slideController == null) return -1;
+        return slideController.CurrentPageNumber;
     }
 
     IEnumerator SmoothMove(Transform target)
     {
-        Vector3 startPos = mainCamera.transform.position;
-        Quaternion startRot = mainCamera.transform.rotation;
+        Vector3 startPos = cameraTransform.position;
+        Quaternion startRot = cameraTransform.rotation;
 
-        float t = 0f;
-        while (t < 1f)
+        Vector3 endPos = target.position;
+        Quaternion endRot = target.rotation;
+
+        float time = 0f;
+
+        while (time < moveDuration)
         {
-            t += Time.deltaTime * moveSpeed;
+            time += Time.deltaTime;
+            float t = Mathf.Clamp01(time / moveDuration);
+            float curveT = moveCurve.Evaluate(t);
 
-            mainCamera.transform.position =
-                Vector3.Lerp(startPos, target.position, t);
+            cameraTransform.position =
+                Vector3.Lerp(startPos, endPos, curveT);
 
-            mainCamera.transform.rotation =
-                Quaternion.Slerp(startRot, target.rotation, t);
+            cameraTransform.rotation =
+                Quaternion.Slerp(startRot, endRot, curveT);
 
             yield return null;
+        }
+
+        cameraTransform.position = endPos;
+        cameraTransform.rotation = endRot;
+    }
+
+    void MoveCameraSmooth(Transform target)
+    {
+        if (moveRoutine != null)
+            StopCoroutine(moveRoutine);
+
+        moveRoutine = StartCoroutine(SmoothMove(target));
+    }
+
+    // -------------------------------------------------------
+    // MOVE TO ELEMENT POINT
+    // -------------------------------------------------------
+    public void MoveToElement(int elementIndex)
+    {
+        int page = GetCurrentPage();
+        if (page == -1) return;
+
+        PageCameraData p = GetPage(page);
+        if (p == null) return;
+
+        if (elementIndex < 0 || elementIndex >= p.movePoints.Length)
+            return;
+
+        Transform target = p.movePoints[elementIndex];
+        if (target == null) return;
+
+        MoveCameraSmooth(target);
+    }
+
+    // -------------------------------------------------------
+    // SINGLE FUNCTION YOU CALL FROM EVENT
+    // -------------------------------------------------------
+    public void LockCurrentPageFinalPosition()
+    {
+        int page = GetCurrentPage();
+        if (page == -1) return;
+
+        PageCameraData p = GetPage(page);
+        if (p == null || p.finalPosition == null)
+        {
+            Debug.LogWarning("Final position not set for page " + page);
+            return;
+        }
+
+        lockedFinalPositions[page] = p.finalPosition;
+
+        // Smooth move to final position
+        MoveCameraSmooth(p.finalPosition);
+    }
+
+    // -------------------------------------------------------
+    // AUTO APPLY WHEN PAGE CHANGES
+    // -------------------------------------------------------
+    void ApplyLockedPosition(int page)
+    {
+        if (lockedFinalPositions.ContainsKey(page))
+        {
+            Transform finalPos = lockedFinalPositions[page];
+            if (finalPos != null)
+            {
+                cameraTransform.position = finalPos.position;
+                cameraTransform.rotation = finalPos.rotation;
+            }
         }
     }
 }
