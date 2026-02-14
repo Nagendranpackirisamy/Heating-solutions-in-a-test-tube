@@ -36,8 +36,19 @@ public class SlideTimerController : MonoBehaviour
         }
     }
 
+    private bool hasStarted = false;
+
     void Update()
     {
+        if (timerCompleted) return;
+
+        if (!hasStarted &&
+            slideController.CurrentPageNumber == targetPageNumber)
+        {
+            StartTimer();
+            hasStarted = true;
+        }
+
         if (!isRunning) return;
 
         currentTime += Time.deltaTime * speedMultiplier;
@@ -52,6 +63,7 @@ public class SlideTimerController : MonoBehaviour
             CompleteTimer();
         }
     }
+
 
     void StartTimer()
     {
