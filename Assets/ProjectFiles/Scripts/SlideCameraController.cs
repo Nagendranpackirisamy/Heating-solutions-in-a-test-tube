@@ -59,9 +59,6 @@ public class SlideCameraController : MonoBehaviour
     public int CurrentPageNumber => steps[currentIndex].pageNumber;
 
 
-    public int CurrentPageNumber => steps[currentIndex].pageNumber;
-
-
     [Header("Navigation Buttons")]
     public Button nextButton;
     public Button previousButton;
@@ -177,21 +174,7 @@ public class SlideCameraController : MonoBehaviour
 
         return false;
     }
-
-
-    bool ShouldAnimate(int fromIndex, int toIndex)
-    {
-        // Only animate when moving forward
-        if (toIndex > fromIndex)
-        {
-            // Animate only first time entering that slide
-            if (!slideLocked[toIndex])
-                return true;
-        }
-
-        return false;
-    }
-
+    
 
     IEnumerator MoveTo(int targetIndex)
     {
