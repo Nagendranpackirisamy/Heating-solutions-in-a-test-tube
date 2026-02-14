@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="36e153ea-f863-490d-af34-a6d292cdf7fa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/HeatingSolutionExperiment.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/HeatingSolutionExperiment.unity" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,7 +99,7 @@
       <updated>1770945653329</updated>
       <workItem from="1770945656016" duration="7485000" />
       <workItem from="1770970144447" duration="1627000" />
-      <workItem from="1771040840028" duration="1130000" />
+      <workItem from="1771040840028" duration="2362000" />
     </task>
     <servers />
   </component>
