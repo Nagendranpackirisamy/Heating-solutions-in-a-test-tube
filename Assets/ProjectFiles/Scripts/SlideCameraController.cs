@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
@@ -55,6 +55,9 @@ public class SlideCameraController : MonoBehaviour
 
     [Header("Steps")]
     public List<Step> steps;
+
+    public int CurrentPageNumber => steps[currentIndex].pageNumber;
+
 
     [Header("Navigation Buttons")]
     public Button nextButton;
@@ -159,18 +162,38 @@ public class SlideCameraController : MonoBehaviour
         StartCoroutine(MoveTo(currentIndex - 1));
     }
 
+    bool ShouldAnimate(int fromIndex, int toIndex)
+    {
+        // Only animate when moving forward
+        if (toIndex > fromIndex)
+        {
+            // Animate only first time entering that slide
+            if (!slideLocked[toIndex])
+                return true;
+        }
+
+        return false;
+    }
+
+
     IEnumerator MoveTo(int targetIndex)
     {
+        if (isMoving) yield break;
+
         isMoving = true;
 
         Step from = steps[currentIndex];
         Step to = steps[targetIndex];
 
-        // Instant camera move
-        cameraTransform.position = to.cameraPoint.position;
-        cameraTransform.rotation = to.cameraPoint.rotation;
+        bool animate = ShouldAnimate(currentIndex, targetIndex);
 
-        // Instant slide switch (no fade)
+        Vector3 startPos = cameraTransform.position;
+        Quaternion startRot = cameraTransform.rotation;
+
+        Vector3 endPos = to.cameraPoint.position;
+        Quaternion endRot = to.cameraPoint.rotation;
+
+        // 🔹 Switch slide immediately
         HideSlide(from);
         ShowSlide(to);
 
@@ -181,9 +204,40 @@ public class SlideCameraController : MonoBehaviour
         UpdateBackButton();
         UpdateSlideCounterUI();
 
+        if (!animate)
+        {
+            // Instant snap
+            cameraTransform.position = endPos;
+            cameraTransform.rotation = endRot;
+
+            isMoving = false;
+            yield break;
+        }
+
+        // 🔹 Animate only if allowed
+        float elapsed = 0f;
+
+        while (elapsed < moveDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / moveDuration);
+
+            float posT = positionCurve.Evaluate(t);
+            float rotT = rotationCurve.Evaluate(t);
+
+            cameraTransform.position = Vector3.Lerp(startPos, endPos, posT);
+            cameraTransform.rotation = Quaternion.Slerp(startRot, endRot, rotT);
+
+            yield return null;
+        }
+
+        cameraTransform.position = endPos;
+        cameraTransform.rotation = endRot;
+
         isMoving = false;
-        yield break;
     }
+
+
 
     void ShowSlide(Step step)
     {
