@@ -20,6 +20,7 @@ public class Slide19Interaction : MonoBehaviour
     [Header("Slide 20 Settings")]
     public int slide20PageNumber;
     public GameObject slide20Flame;
+    public GameObject slide20ObjectToDisable;
 
     private static bool slide19Completed = false;
     private bool isRunning = false;
@@ -131,9 +132,13 @@ public class Slide19Interaction : MonoBehaviour
         if (slide20Flame != null)
             slide20Flame.SetActive(false);
 
+        if (slide20ObjectToDisable != null)
+            slide20ObjectToDisable.SetActive(false);
+
         slideController.EnableNextButton();
 
         slide20Completed = true;
     }
+
 
 }

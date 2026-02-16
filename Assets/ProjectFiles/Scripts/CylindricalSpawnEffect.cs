@@ -8,116 +8,215 @@ public class CylindricalSpawnEffect : MonoBehaviour
     [SerializeField] private GameObject prefab;
     [SerializeField] private float radius = 1.5f;
     [SerializeField] private float height = 2f;
-    [SerializeField] private int spawnCount = 25;
+    
+    [Header("Auto Start")]
+    [SerializeField] private bool autoStartOnEnable = false;
+
+    [Header("Bubble Size")]
+    [SerializeField] private float minScale = 0.2f;
+    [SerializeField] private float maxScale = 0.6f;
+
+    [Header("Movement")]
+    [SerializeField] private float moveDuration = 2f;
 
     [Header("Timing")]
     [SerializeField] private float spawnInterval = 0.1f;
 
-    [Header("Default Trigger Values (For UI Button)")]
-    [SerializeField] private float defaultDelay = 0f;
-    [SerializeField] private float defaultDuration = 3f;
+    [Header("Trigger Delay")]
+    [SerializeField] private float triggerDelay = 2f;
 
-    private Coroutine runningRoutine;
+    [Header("Delayed Objects")]
+    [SerializeField] private GameObject[] delayedObjects;
+    [SerializeField] private float delayedObjectsEnableTime = 2f;
+
+    private Coroutine spawnRoutine;
+    private Coroutine delayedRoutine;
+
     private readonly List<GameObject> spawnedObjects = new();
 
+    private bool isRunning = false;
+
     // =========================
-    // PUBLIC API
+    // UNITY EVENTS
     // =========================
 
-    /// <summary>
-    /// Start effect with custom delay and duration.
-    /// </summary>
-    public void StartEffect(float delaySeconds, float durationSeconds)
+    private void OnEnable()
     {
-        StopEffect(); // Ensure no stacking coroutines
-        runningRoutine = StartCoroutine(StartEffectRoutine(delaySeconds, durationSeconds));
-    }
-
-    /// <summary>
-    /// UI-friendly trigger (no parameters required).
-    /// </summary>
-    public void TriggerEffect()
-    {
-        StartEffect(defaultDelay, defaultDuration);
-    }
-
-    /// <summary>
-    /// Stop effect immediately.
-    /// </summary>
-    public void StopEffect()
-    {
-        if (runningRoutine != null)
+        if (autoStartOnEnable)
         {
-            StopCoroutine(runningRoutine);
-            runningRoutine = null;
+            isRunning = true;
+            StartCoroutine(StartWithDelay());
+            return;
         }
 
-        ClearSpawnedObjects();
+        if (isRunning)
+        {
+            // Remove only frozen bubbles
+            RemoveStaticBubbles();
+
+            spawnRoutine = StartCoroutine(SpawnRoutine());
+
+            if (delayedObjects != null && delayedObjects.Length > 0)
+                delayedRoutine = StartCoroutine(EnableDelayedObjects());
+        }
+    }
+
+
+    private void OnDisable()
+    {
+        if (spawnRoutine != null)
+            StopCoroutine(spawnRoutine);
+
+        if (delayedRoutine != null)
+            StopCoroutine(delayedRoutine);
     }
 
     // =========================
-    // INTERNAL ROUTINES
+    // PUBLIC API WITH DELAY
     // =========================
 
-    private IEnumerator StartEffectRoutine(float delay, float duration)
+    public void TriggerEffect()
     {
-        yield return new WaitForSeconds(delay);
+        if (isRunning) return;
 
-        yield return SpawnRoutine(duration);
+        isRunning = true;
 
-        StopEffect();
+        StartCoroutine(StartWithDelay());
     }
 
-    private IEnumerator SpawnRoutine(float duration)
+    private IEnumerator StartWithDelay()
     {
-        float timer = 0f;
-        int spawned = 0;
+        yield return new WaitForSeconds(triggerDelay);
 
-        while (timer < duration && spawned < spawnCount)
+        spawnRoutine = StartCoroutine(SpawnRoutine());
+
+        if (delayedObjects != null && delayedObjects.Length > 0)
+            delayedRoutine = StartCoroutine(EnableDelayedObjects());
+    }
+
+    public void StopEffect()
+    {
+        isRunning = false;
+
+        if (spawnRoutine != null)
+            StopCoroutine(spawnRoutine);
+
+        if (delayedRoutine != null)
+            StopCoroutine(delayedRoutine);
+    }
+
+    // =========================
+    // SPAWN ROUTINE
+    // =========================
+
+    private IEnumerator SpawnRoutine()
+    {
+        while (isRunning)
         {
             SpawnOne();
-            spawned++;
-
             yield return new WaitForSeconds(spawnInterval);
-            timer += spawnInterval;
         }
     }
 
     private void SpawnOne()
     {
-        Vector3 randomPos = GetRandomPointInCylinder();
+        Vector3 offset = GetRandomCirclePoint();
 
-        GameObject obj = Instantiate(
-            prefab,
-            transform.position + randomPos,
-            Quaternion.identity,
-            transform
-        );
+        Vector3 start = transform.position + offset;
+        Vector3 end = start + transform.up * height;
 
-        spawnedObjects.Add(obj);
+        GameObject bubble =
+            Instantiate(prefab, start, Quaternion.identity, transform);
+
+        float scale = Random.Range(minScale, maxScale);
+        bubble.transform.localScale = Vector3.one * scale;
+
+        spawnedObjects.Add(bubble);
+
+        StartCoroutine(MoveBubble(bubble, start, end));
     }
 
-    private Vector3 GetRandomPointInCylinder()
+    private Vector3 GetRandomCirclePoint()
     {
-        float randomRadius = Random.Range(0f, radius);
-        float randomAngle = Random.Range(0f, Mathf.PI * 2f);
+        float r = Mathf.Sqrt(Random.Range(0f, 1f)) * radius;
+        float angle = Random.Range(0f, Mathf.PI * 2f);
 
-        float x = randomRadius * Mathf.Cos(randomAngle);
-        float z = randomRadius * Mathf.Sin(randomAngle);
-        float y = Random.Range(0f, height);
+        float x = r * Mathf.Cos(angle);
+        float z = r * Mathf.Sin(angle);
 
-        return new Vector3(x, y, z);
+        return transform.right * x + transform.forward * z;
     }
 
-    private void ClearSpawnedObjects()
+    // =========================
+    // MOVE BUBBLE
+    // =========================
+
+    private IEnumerator MoveBubble(GameObject obj, Vector3 start, Vector3 end)
     {
-        foreach (var obj in spawnedObjects)
+        float elapsed = 0f;
+
+        while (elapsed < moveDuration)
         {
-            if (obj != null)
-                Destroy(obj);
+            if (obj == null)
+                yield break;
+
+            elapsed += Time.deltaTime;
+
+            obj.transform.position =
+                Vector3.Lerp(start, end, elapsed / moveDuration);
+
+            yield return null;
         }
 
-        spawnedObjects.Clear();
+        spawnedObjects.Remove(obj);
+
+        if (obj != null)
+            Destroy(obj);
+    }
+
+    // =========================
+    // REMOVE ONLY STATIC BUBBLES
+    // =========================
+
+    private void RemoveStaticBubbles()
+    {
+        for (int i = spawnedObjects.Count - 1; i >= 0; i--)
+        {
+            GameObject obj = spawnedObjects[i];
+
+            if (obj == null)
+            {
+                spawnedObjects.RemoveAt(i);
+                continue;
+            }
+
+            // If object hasn't moved upward enough, consider it frozen
+            float heightFromBase =
+                Vector3.Dot(
+                    obj.transform.position - transform.position,
+                    transform.up);
+
+            if (heightFromBase < height * 0.95f)
+            {
+                Destroy(obj);
+                spawnedObjects.RemoveAt(i);
+            }
+        }
+    }
+
+    // =========================
+    // DELAYED OBJECTS
+    // =========================
+
+    private IEnumerator EnableDelayedObjects()
+    {
+        yield return new WaitForSeconds(delayedObjectsEnableTime);
+
+        foreach (var obj in delayedObjects)
+        {
+            if (obj != null)
+                obj.SetActive(true);
+        }
     }
 
 #if UNITY_EDITOR
@@ -125,17 +224,33 @@ public class CylindricalSpawnEffect : MonoBehaviour
     {
         Gizmos.color = Color.cyan;
 
-        // Bottom circle
-        Gizmos.DrawWireSphere(transform.position, radius);
+        Vector3 bottom = transform.position;
+        Vector3 top = transform.position + transform.up * height;
 
-        // Top circle
-        Gizmos.DrawWireSphere(transform.position + Vector3.up * height, radius);
+        DrawCircle(bottom);
+        DrawCircle(top);
+    }
 
-        // Vertical line
-        Gizmos.DrawLine(
-            transform.position,
-            transform.position + Vector3.up * height
-        );
+    private void DrawCircle(Vector3 center)
+    {
+        int segments = 24;
+
+        Vector3 prev =
+            center + transform.right * radius;
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = i * Mathf.PI * 2f / segments;
+
+            Vector3 next =
+                center +
+                (transform.right * Mathf.Cos(angle) +
+                 transform.forward * Mathf.Sin(angle)) * radius;
+
+            Gizmos.DrawLine(prev, next);
+
+            prev = next;
+        }
     }
 #endif
 }
