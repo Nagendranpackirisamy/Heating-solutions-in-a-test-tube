@@ -1,26 +1,65 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
+using System.Reflection;
 
 public class EnableButton : MonoBehaviour
 {
+    [Header("Slide Controller")]
+    public SlideCameraController slideController;
+
+    [Header("Target Slide Number (pageNumber)")]
+    public int targetPageNumber;
+
     [Header("Images to Track")]
     public GameObject[] imagesToCheck;
 
-    [Header("Target Button")]
-    public Button targetButton;
+    [Header("Event When All Active")]
+    public UnityEvent onAllImagesActive;
+
+    private bool eventTriggered = false;
+    private bool hasLockedNavigation = false;
+
+    private FieldInfo currentIndexField;
 
     private void Start()
     {
-        // Button starts disabled
-        targetButton.interactable = false;
+        // Get private field "currentIndex" using reflection
+        currentIndexField = typeof(SlideCameraController)
+            .GetField("currentIndex", BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
     private void Update()
     {
-        if (AreAllImagesActive())
+        if (slideController == null || currentIndexField == null)
+            return;
+
+        int currentIndex = (int)currentIndexField.GetValue(slideController);
+
+        if (currentIndex < 0 || currentIndex >= slideController.steps.Count)
+            return;
+
+        int currentPage = slideController.steps[currentIndex].pageNumber;
+
+        // Lock navigation when this slide becomes active
+        if (!hasLockedNavigation && currentPage == targetPageNumber)
         {
-            targetButton.interactable = true;
-            enabled = false; // Stop checking once done (important for performance)
+            hasLockedNavigation = true;
+            slideController.nextButton.interactable = false;
+            slideController.previousButton.interactable = false;
+        }
+
+        // Run logic only on target slide
+        if (hasLockedNavigation && !eventTriggered && currentPage == targetPageNumber)
+        {
+            if (AreAllImagesActive())
+            {
+                eventTriggered = true;
+
+                slideController.EnableNextButton();
+                slideController.previousButton.interactable = true;
+
+                onAllImagesActive?.Invoke();
+            }
         }
     }
 

@@ -43,9 +43,9 @@ Material:
     - _DepthStrength: 1.34
     - _DepthVisibility: 0.4
     - _EdgeStrength: 0.25
-    - _FillHeight: 1.2
-    - _FresnelPower: 6.68
-    - _IntersectionFade: 1.4
+    - _FillHeight: 1.4
+    - _FresnelPower: 5.16
+    - _IntersectionFade: 2.96
     - _MeniscusStrength: 0.006
     - _Refraction: 0.035
     - _RefractionStrength: 0.02
@@ -61,8 +61,8 @@ Material:
     - _YAxisInfluence: 0.25
     m_Colors:
     - _ContainerPos: {r: 0, g: 0, b: 0, a: 0}
-    - _DeepColor: {r: 0.18431371, g: 0.7954789, b: 1, a: 1}
-    - _ShallowColor: {r: 0.9607844, g: 0.9607844, b: 0.9686275, a: 1}
+    - _DeepColor: {r: 0.9924528, g: 0.9924528, b: 0.9924528, a: 0.8627451}
+    - _ShallowColor: {r: 0.9686274, g: 0.96853596, b: 0.96078426, a: 0.011764706}
     - _WaterColor: {r: 0.75294125, g: 0.74509805, b: 0.74509805, a: 1}
     - _WaterTint: {r: 0.9, g: 0.96999997, b: 1, a: 0.15}
   m_BuildTextureStacks: []
