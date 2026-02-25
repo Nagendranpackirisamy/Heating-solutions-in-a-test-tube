@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class MCQController : MonoBehaviour
 {
     // -------------------------------------------------
-    // LOCAL MEMORY (NO EVALUATION MANAGER)
+    // LOCAL MEMORY
     // -------------------------------------------------
 
     public class LocalState
@@ -23,7 +23,6 @@ public class MCQController : MonoBehaviour
     // -------------------------------------------------
 
     [Header("Slide Binding")]
-    [Tooltip("Page number of the slide this MCQ belongs to")]
     public int slidePageNumber;
 
     [Header("Panels")]
@@ -61,17 +60,19 @@ public class MCQController : MonoBehaviour
     public UnityEvent onCorrectOptionSelected;
     public UnityEvent onWrongOptionSelected;
 
-    int attemptCount;
-
+    // -------------------------------------------------
+    // UNITY LIFECYCLE
     // -------------------------------------------------
 
     private void OnEnable()
     {
-        LoadQuestion();
         BindButtons();
+        LoadQuestionVisual();
         RestoreState();
     }
 
+    // -------------------------------------------------
+    // STATE ACCESS
     // -------------------------------------------------
 
     LocalState GetState()
@@ -83,9 +84,15 @@ public class MCQController : MonoBehaviour
     }
 
     // -------------------------------------------------
+    // LOAD VISUAL ONLY
+    // -------------------------------------------------
 
-    void LoadQuestion()
+    void LoadQuestionVisual()
     {
+        // Always reset both panels first
+        mcqPanel.SetActive(true);
+        explanationPanel.SetActive(false);
+
         questionText.text = questionData.questionText;
         explanationText.text = questionData.explanationText;
 
@@ -116,36 +123,36 @@ public class MCQController : MonoBehaviour
             optionButtons[i].GetComponent<Image>().sprite = defaultButtonSprite;
         }
 
-        mcqPanel.SetActive(true);
-        explanationPanel.SetActive(false);
         HideExplanationButtons();
     }
 
     // -------------------------------------------------
-    // 🔁 RESTORE HISTORY
+    // RESTORE PREVIOUS STATE
     // -------------------------------------------------
 
     void RestoreState()
     {
         var state = GetState();
 
+        mcqPanel.SetActive(true);
+        explanationPanel.SetActive(false);
+
         foreach (int wrongIndex in state.wrongOptions)
         {
-            optionButtons[wrongIndex]
-                .GetComponent<Image>().sprite = wrongSprite;
-
+            optionButtons[wrongIndex].GetComponent<Image>().sprite = wrongSprite;
             optionButtons[wrongIndex].interactable = false;
         }
 
         if (state.correctOption != -1)
         {
-            optionButtons[state.correctOption]
-                .GetComponent<Image>().sprite = correctSprite;
+            optionButtons[state.correctOption].GetComponent<Image>().sprite = correctSprite;
 
             DisableAllOptions();
+
             ShowRightExplanation();
 
-            slideManager.EnableNextButton();
+            // DO NOT call EnableNextButton here
+            // Slide is already completed and locked
         }
     }
 
@@ -164,33 +171,25 @@ public class MCQController : MonoBehaviour
             state.correctOption = index;
             state.answered = true;
 
-            optionButtons[index]
-                .GetComponent<Image>().sprite = correctSprite;
+            optionButtons[index].GetComponent<Image>().sprite = correctSprite;
 
             DisableAllOptions();
             ShowRightExplanation();
 
-            // ⭐ TRIGGER EVENT
-            onCorrectOptionSelected?.Invoke();
+            slideManager.EnableNextButton();  // ← ONLY here
 
-            // ⭐ ENABLE SLIDE NAV
-            slideManager.EnableNextButton();
+            onCorrectOptionSelected?.Invoke();
         }
         else
         {
-            attemptCount++;
-
             if (!state.wrongOptions.Contains(index))
                 state.wrongOptions.Add(index);
 
-            optionButtons[index]
-                .GetComponent<Image>().sprite = wrongSprite;
-
+            optionButtons[index].GetComponent<Image>().sprite = wrongSprite;
             optionButtons[index].interactable = false;
 
             ShowWrongExplanation();
 
-            // ⭐ TRIGGER EVENT
             onWrongOptionSelected?.Invoke();
         }
     }
@@ -216,21 +215,37 @@ public class MCQController : MonoBehaviour
         explanationPanel.SetActive(true);
     }
 
+    bool isNavigating = false;
+
     void OnExplanationAction()
     {
-        explanationPanel.SetActive(false);
+        if (isNavigating) return;
 
         var state = GetState();
 
+        mcqPanel.SetActive(true);
+        explanationPanel.SetActive(false);
+
         if (state.answered)
+        {
+            isNavigating = true;
+
             slideManager.Next();
+
+            // Reset flag after small delay to avoid stacking
+            StartCoroutine(ResetNavigationFlag());
+        }
         else
         {
-            mcqPanel.SetActive(true);
             HideExplanationButtons();
         }
     }
 
+    System.Collections.IEnumerator ResetNavigationFlag()
+    {
+        yield return new WaitForSeconds(0.2f);
+        isNavigating = false;
+    }
     // -------------------------------------------------
     // UI HELPERS
     // -------------------------------------------------
