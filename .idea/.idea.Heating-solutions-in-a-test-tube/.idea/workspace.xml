@@ -6,18 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="36e153ea-f863-490d-af34-a6d292cdf7fa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/AnimPrefab/GlassBottleAnimation.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/AnimPrefab/GlassBottleAnimation.anim" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/Testtube_19.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Animations/animation files/Testtube_19.anim" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Materials/Test_Tube_Tex/Glassmaterial 1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Materials/Test_Tube_Tex/Glassmaterial 1.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Materials/Test_Tube_Tex/Glassmaterial.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Materials/Test_Tube_Tex/Glassmaterial.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/CylindricalSpawnEffect.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/CylindricalSpawnEffect.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/Slide19Interaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/Slide19Interaction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/MCQController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/MCQController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/No_Gravity.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/No_Gravity.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/Water_Shader.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/Water_Shader.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Evaluation.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Evaluation.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/HeatingSolutionExperiment.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/HeatingSolutionExperiment.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/msVFX_Free Smoke Effects Pack/Prefabs/msVFX_Stylized Smoke 1.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/msVFX_Free Smoke Effects Pack/Prefabs/msVFX_Stylized Smoke 1.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/Mobile_RPAsset.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Mobile_RPAsset.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/UniversalRenderPipelineGlobalSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/UniversalRenderPipelineGlobalSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +25,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Sudharsan535&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Sudharsan535/Heating-solutions-in-a-test-tube.git&quot;,
+    &quot;accountId&quot;: &quot;c9466007-cc57-4b5b-aa18-167b71279fe8&quot;
+  }
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/ProjectFiles/Scripts/BottleDrag.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/ProjectFiles/Scripts/BubbleEffectTrigger.cs" root0="FORCE_HIGHLIGHTING" />
@@ -116,7 +126,10 @@
       <workItem from="1770945656016" duration="7485000" />
       <workItem from="1770970144447" duration="1627000" />
       <workItem from="1771040840028" duration="3700000" />
-      <workItem from="1771202731328" duration="8617000" />
+      <workItem from="1771202731328" duration="9321000" />
+      <workItem from="1771460527996" duration="3203000" />
+      <workItem from="1771923180285" duration="463000" />
+      <workItem from="1772005855228" duration="1426000" />
     </task>
     <servers />
   </component>
@@ -130,4 +143,25 @@
     <option name="unityProjectFolder" value="true" />
   </component>
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="28932f97-d693-4aec-8c9c-65fe5a515bf1" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="28932f97-d693-4aec-8c9c-65fe5a515bf1">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
 </project>

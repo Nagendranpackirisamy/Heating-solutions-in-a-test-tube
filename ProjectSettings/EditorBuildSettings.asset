@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: 076c1a284231953478624a0ec2534748
+  - enabled: 1
     path: Assets/Scenes/HeatingSolutionExperiment.unity
     guid: 0af57258aa4a14749bd3ef9194923043
   - enabled: 1
