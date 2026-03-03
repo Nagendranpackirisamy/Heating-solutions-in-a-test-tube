@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="36e153ea-f863-490d-af34-a6d292cdf7fa" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Heating-solutions-in-a-test-tube/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/MCQController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Scripts/MCQController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/No_Gravity.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/No_Gravity.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/Water_Shader.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ProjectFiles/Shaders/Water_Shader.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Evaluation.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Evaluation.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/HeatingSolutionExperiment.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/HeatingSolutionExperiment.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/Mobile_RPAsset.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Mobile_RPAsset.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/UniversalRenderPipelineGlobalSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/UniversalRenderPipelineGlobalSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
-    </list>
+    <list default="true" id="36e153ea-f863-490d-af34-a6d292cdf7fa" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -129,7 +117,7 @@
       <workItem from="1771202731328" duration="9321000" />
       <workItem from="1771460527996" duration="3203000" />
       <workItem from="1771923180285" duration="463000" />
-      <workItem from="1772005855228" duration="1426000" />
+      <workItem from="1772005855228" duration="2769000" />
     </task>
     <servers />
   </component>
