@@ -1,10 +1,16 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
-public class SceneManagers : MonoBehaviour
+namespace HeatingSolutionsInaTestTube
 {
-    public void LoadSceneByName(string sceneName)
-    {
-        SceneManager.LoadScene(sceneName);
-    }
+    public class SceneManagers : MonoBehaviour
+    {
+        public void LoadSceneByName(string sceneName)
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+    }
+    
+    
 }

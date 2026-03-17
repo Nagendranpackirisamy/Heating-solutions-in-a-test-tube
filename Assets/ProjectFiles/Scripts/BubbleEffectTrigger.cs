@@ -1,21 +1,26 @@
-using UnityEngine;
+using UnityEngine;
+
 
-public class BubbleEffectTrigger : MonoBehaviour
+namespace HeatingSolutionsInaTestTube
 {
-    [Header("Effect Reference")]
-    public CylindricalSpawnEffect bubbleEffect;
-
-    // Called from animation event
-    public void TriggerBubble()
-    {
-        if (bubbleEffect != null)
-            bubbleEffect.TriggerEffect();
+    public class BubbleEffectTrigger : MonoBehaviour
+    {
+        [Header("Effect Reference")]
+        public CylindricalSpawnEffect bubbleEffect;
+    
+        // Called from animation event
+        public void TriggerBubble()
+        {
+            if (bubbleEffect != null)
+                bubbleEffect.TriggerEffect();
+        }
+    
+        // Optional: stop from animation event
+        public void StopBubble()
+        {
+            if (bubbleEffect != null)
+                bubbleEffect.StopEffect();
+        }
     }
-
-    // Optional: stop from animation event
-    public void StopBubble()
-    {
-        if (bubbleEffect != null)
-            bubbleEffect.StopEffect();
-    }
+    
 }

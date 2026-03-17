@@ -1,24 +1,29 @@
-using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine;
+using UnityEngine.Events;
+
 
-public class ClickOrTouchEvent : MonoBehaviour
+namespace HeatingSolutionsInaTestTube
 {
-    [Header("Event to Trigger on Click/Touch")]
-    public UnityEvent onClicked; // Assign function from Inspector
-
-    private void Update()
-    {
-        // For mouse click or touch
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                if (hit.transform == transform)
-                {
-                    onClicked.Invoke();
-                }
-            }
-        }
+    public class ClickOrTouchEvent : MonoBehaviour
+    {
+        [Header("Event to Trigger on Click/Touch")]
+        public UnityEvent onClicked; // Assign function from Inspector
+    
+        private void Update()
+        {
+            // For mouse click or touch
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.transform == transform)
+                    {
+                        onClicked.Invoke();
+                    }
+                }
+            }
+        }
     }
+    
 }
