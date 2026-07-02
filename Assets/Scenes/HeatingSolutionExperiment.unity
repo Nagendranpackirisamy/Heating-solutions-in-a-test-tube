@@ -23095,8 +23095,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9086242031481382896, guid: e74a9aa8333f8084da98c4f995adf155, type: 3}
       propertyPath: m_text
-      value: Now, let us learn the technique to heat a flammable liquid (ethanol)
-        in a test tube taken in a water bath.
+      value: Assemble the tripod stand, wire gauze, water bath and test tube in the
+        correct order for heating the ethanol.
       objectReference: {fileID: 0}
     - target: {fileID: 9086242031481382896, guid: e74a9aa8333f8084da98c4f995adf155, type: 3}
       propertyPath: m_fontSize
@@ -45919,6 +45919,22 @@ PrefabInstance:
     - target: {fileID: 7378744280220528850, guid: e8faf8c737d75dd438e5ae7830d68d07, type: 3}
       propertyPath: m_IsTrigger
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8804696000879793193, guid: e8faf8c737d75dd438e5ae7830d68d07, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 8804696000879793193, guid: e8faf8c737d75dd438e5ae7830d68d07, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 8804696000879793193, guid: e8faf8c737d75dd438e5ae7830d68d07, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 8804696000879793193, guid: e8faf8c737d75dd438e5ae7830d68d07, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7378744280220528850, guid: e8faf8c737d75dd438e5ae7830d68d07, type: 3}
