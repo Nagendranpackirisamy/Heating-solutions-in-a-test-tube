@@ -1,4 +1,4 @@
-Shader "Custom/Water_Gravity_Unity6"
+Shader "Custom/Water_Gravity_Unity6_MR_Local"
 {
     Properties
     {
@@ -6,7 +6,6 @@ Shader "Custom/Water_Gravity_Unity6"
         _DeepColor ("Deep Tint", Color) = (0.85, 0.93, 1.0, 1)
 
         _FillHeight ("Water Level", Float) = 0
-        _ContainerPos ("Container Position", Vector) = (0,0,0,0)
 
         _FresnelPower ("Rim Light Power", Range(0,10)) = 4
         _DepthStrength ("Depth Darkening", Range(0,10)) = 1.5
@@ -20,80 +19,145 @@ Shader "Custom/Water_Gravity_Unity6"
     {
         Tags
         {
-            "RenderType"="Opaque"
-            "Queue"="Geometry"
             "RenderPipeline"="UniversalPipeline"
+            "Queue"="Transparent"
+            "RenderType"="Transparent"
         }
 
         Pass
         {
-            Tags { "LightMode"="UniversalForward" }
+            Name "ForwardLit"
 
-            ZWrite On
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
             Cull Off
 
             HLSLPROGRAM
+
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 2.0
 
-            #include "UnityCG.cginc"
+            #pragma multi_compile_instancing
 
-            struct appdata
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
             {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Varyings
             {
-                float4 pos : SV_POSITION;
-                float3 worldPos : TEXCOORD0;
+                float4 positionHCS : SV_POSITION;
+
+                float3 localPos : TEXCOORD0;
                 float3 normalWS : TEXCOORD1;
                 float3 viewDir : TEXCOORD2;
+
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            float4 _ShallowColor, _DeepColor;
-            float _FillHeight, _FresnelPower, _DepthStrength;
-            float _WaveStrength, _WaveSpeed, _WaveScale;
-            float4 _ContainerPos;
+            float4 _ShallowColor;
+            float4 _DeepColor;
 
-            v2f vert (appdata v)
+            float _FillHeight;
+
+            float _FresnelPower;
+            float _DepthStrength;
+
+            float _WaveStrength;
+            float _WaveSpeed;
+            float _WaveScale;
+
+            Varyings vert (Attributes IN)
             {
-                v2f o;
+                Varyings OUT;
 
-                o.pos = UnityObjectToClipPos(v.vertex);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                o.normalWS = UnityObjectToWorldNormal(v.normal);
-                o.viewDir = normalize(_WorldSpaceCameraPos - o.worldPos);
+                UNITY_SETUP_INSTANCE_ID(IN);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
-                return o;
+                VertexPositionInputs posInput =
+                    GetVertexPositionInputs(IN.positionOS.xyz);
+
+                VertexNormalInputs normInput =
+                    GetVertexNormalInputs(IN.normalOS);
+
+                OUT.positionHCS =
+                    posInput.positionCS;
+
+                // LOCAL POSITION
+                OUT.localPos =
+                    IN.positionOS.xyz;
+
+                OUT.normalWS =
+                    normInput.normalWS;
+
+                OUT.viewDir =
+                    GetWorldSpaceViewDir(
+                        posInput.positionWS);
+
+                return OUT;
             }
 
-            half4 frag (v2f i) : SV_Target
+            half4 frag (Varyings IN)
+                : SV_Target
             {
-                half3 gravityUp = half3(0,1,0);
+                // LOCAL SPACE WATER
+                half ripple =
+                    sin((IN.localPos.x +
+                    IN.localPos.z)
+                    * _WaveScale
+                    + _Time.y *
+                    _WaveSpeed)
+                    * _WaveStrength;
 
-                half ripple = sin((i.worldPos.x + i.worldPos.z) * _WaveScale
-                                  + _Time.y * _WaveSpeed) * _WaveStrength;
+                // LOCAL HEIGHT
+                half surface =
+                    _FillHeight + ripple;
 
-                half height = dot(i.worldPos - _ContainerPos.xyz, gravityUp);
-                half surface = _FillHeight + ripple;
+                // USE LOCAL Y
+                clip(surface -
+                    IN.localPos.y);
 
-                clip(surface - height);
+                half depth =
+                    saturate(
+                    (surface -
+                    IN.localPos.y)
+                    * _DepthStrength);
 
-                half depth = saturate((surface - height) * _DepthStrength);
-                half3 waterColor = lerp(_ShallowColor.rgb, _DeepColor.rgb, depth);
+                half3 waterColor =
+                    lerp(
+                        _ShallowColor.rgb,
+                        _DeepColor.rgb,
+                        depth);
 
-                half fresnel = pow(1 - saturate(dot(normalize(i.normalWS),
-                                                    normalize(i.viewDir))), _FresnelPower);
+                half fresnel =
+                    pow(
+                        1 -
+                        saturate(
+                            dot(
+                                normalize(
+                                    IN.normalWS),
+                                normalize(
+                                    IN.viewDir)
+                            )
+                        ),
+                        _FresnelPower);
 
-                half3 finalCol = waterColor + fresnel * 0.08;
+                half3 finalCol =
+                    waterColor +
+                    fresnel * 0.08;
 
-                return half4(finalCol, 1.0);
+                return half4(
+                    finalCol,
+                    0.75);
             }
 
             ENDHLSL
         }
     }
-}
+} 
