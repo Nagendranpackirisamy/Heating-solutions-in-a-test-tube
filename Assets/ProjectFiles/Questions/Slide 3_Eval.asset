@@ -12,11 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba18922ef01d4d4c8990ab10d716134, type: 3}
   m_Name: Slide 3_Eval
   m_EditorClassIdentifier: 
-  questionText: 
+  questionText: '3. What region of the test tube should never be heated in order
+    to
+
+    avoid injury?'
   referenceImage: {fileID: 0}
-  explanationText: 
-  options: []
-  correctOptionIndex: 0
+  explanationText: 'Heating the test tube at the bottom causes bumping leading to
+    accidents and heating at the mouth of
+
+    the test tube will not serve the purpose
+    since the adequate amount of heat will not reach the solution.
+
+'
+  options:
+  - In the middle
+  - 'At the bottom  '
+  - 'At the mouth  '
+  - All of the above
+  correctOptionIndex: 1
   correctDropId: 
   correctValue: 0
   tolerance: 0.1

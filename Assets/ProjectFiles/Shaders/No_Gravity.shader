@@ -1,95 +1,90 @@
-Shader "Custom/Water_NoGravity_Unity6"
+Shader "Custom/Water_NoGravity"
 {
     Properties
     {
-        _ShallowColor ("Shallow Tint", Color) = (0.97, 0.99, 1.0, 1)
-        _DeepColor ("Deep Tint", Color) = (0.85, 0.93, 1.0, 1)
+        _ShallowColor ("Shallow Tint", Color) = (0.97, 0.99, 1.0, 0.06)
+        _DeepColor ("Deep Tint", Color) = (0.85, 0.93, 1.0, 0.20)
 
         _FillHeight ("Water Level (Local Y)", Float) = 0
 
         _FresnelPower ("Rim Light Power", Range(0,10)) = 4
         _DepthStrength ("Depth Darkening", Range(0,10)) = 1.5
+        _SurfaceSmooth ("Surface Softness", Range(0,0.03)) = 0.012
 
         _WaveStrength ("Tiny Ripples", Range(0,0.02)) = 0.002
         _WaveSpeed ("Ripple Speed", Range(0,5)) = 0.6
         _WaveScale ("Ripple Scale", Range(0,10)) = 3
+
+        _IntersectionFade ("Glass Fade", Range(0,10)) = 1
     }
 
     SubShader
     {
-        Tags
-        {
-            "RenderType"="Opaque"
-            "Queue"="Geometry"
-            "RenderPipeline"="UniversalPipeline"
-        }
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
 
         Pass
         {
-            Tags { "LightMode"="UniversalForward" }
-
-            ZWrite On
-            Cull Off
-
-            HLSLPROGRAM
+            CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 2.0
-
             #include "UnityCG.cginc"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
-            };
+            sampler2D _CameraDepthTexture;
 
-            struct v2f
-            {
+            struct appdata { float4 vertex : POSITION; float3 normal : NORMAL; };
+            struct v2f {
                 float4 pos : SV_POSITION;
                 float3 worldPos : TEXCOORD0;
                 float3 localPos : TEXCOORD1;
-                float3 normalWS : TEXCOORD2;
+                float3 normal : TEXCOORD2;
                 float3 viewDir : TEXCOORD3;
+                float4 screenPos : TEXCOORD4;
             };
 
             float4 _ShallowColor, _DeepColor;
-            float _FillHeight, _FresnelPower, _DepthStrength;
-            float _WaveStrength, _WaveSpeed, _WaveScale;
+            float _FillHeight, _FresnelPower, _DepthStrength, _SurfaceSmooth;
+            float _WaveStrength, _WaveSpeed, _WaveScale, _IntersectionFade;
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
-
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
                 o.localPos = v.vertex.xyz;
-                o.normalWS = UnityObjectToWorldNormal(v.normal);
+                o.normal = normalize(UnityObjectToWorldNormal(v.normal));
                 o.viewDir = normalize(_WorldSpaceCameraPos - o.worldPos);
-
+                o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
-            half4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                half ripple = sin((i.localPos.x + i.localPos.z) * _WaveScale
-                                  + _Time.y * _WaveSpeed) * _WaveStrength;
+                float ripple = sin((i.localPos.x + i.localPos.z) * _WaveScale + _Time.y * _WaveSpeed) * _WaveStrength;
+                float surface = _FillHeight + ripple;
 
-                half surface = _FillHeight + ripple;
+                if (i.localPos.y > surface) discard;
 
-                clip(surface - i.localPos.y);
+                float depth = saturate((surface - i.localPos.y) * _DepthStrength);
+                float3 waterColor = lerp(_ShallowColor.rgb, _DeepColor.rgb, depth);
 
-                half depth = saturate((surface - i.localPos.y) * _DepthStrength);
-                half3 waterColor = lerp(_ShallowColor.rgb, _DeepColor.rgb, depth);
+                float fresnel = pow(1 - saturate(dot(i.normal, i.viewDir)), _FresnelPower);
+                float alpha = lerp(_ShallowColor.a, _DeepColor.a, depth);
 
-                half fresnel = pow(1 - saturate(dot(normalize(i.normalWS), normalize(i.viewDir))), _FresnelPower);
+                float surfaceFade = smoothstep(surface, surface - _SurfaceSmooth, i.localPos.y);
 
-                half3 finalCol = waterColor + fresnel * 0.08;
+                float sceneDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos)));
+                float waterDepth = i.screenPos.w;
+                float intersection = saturate((sceneDepth - waterDepth) * _IntersectionFade);
 
-                return half4(finalCol, 1.0);
+                alpha *= surfaceFade * intersection;
+                float3 finalCol = waterColor + fresnel * 0.08;
+
+                return float4(finalCol, alpha);
             }
-
-            ENDHLSL
+            ENDCG
         }
     }
 }

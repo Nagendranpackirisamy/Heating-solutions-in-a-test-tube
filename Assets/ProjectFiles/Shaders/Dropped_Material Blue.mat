@@ -45,7 +45,7 @@ Material:
     - _EdgeStrength: 0.25
     - _FillHeight: 1.4
     - _FresnelPower: 5.16
-    - _IntersectionFade: 2.96
+    - _IntersectionFade: 10
     - _MeniscusStrength: 0.006
     - _Refraction: 0.035
     - _RefractionStrength: 0.02

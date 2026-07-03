@@ -1,70 +1,64 @@
-using UnityEngine;
-using System.Collections;
-
+using UnityEngine;
+using System.Collections;
 
 namespace HeatingSolutionsInaTestTube
 {
-    public class WaterFillWithParticle : MonoBehaviour
-    {
-        [Header("Particle Object")]
-        public GameObject particleObject;
-    
-        [Header("Water Object (center pivot)")]
-        public Transform waterTransform;
-    
-        [Header("Fill Settings")]
-        public float fillDuration = 2f;
-        public float minYScale = 0f;
-        public float maxYScale = 1f;
-    
-        private Coroutine fillRoutine;
-    
-        // Called from animation event
-        public void StartFill()
-        {
-            if (particleObject != null)
-                particleObject.SetActive(true);
-    
-            if (fillRoutine != null)
-                StopCoroutine(fillRoutine);
-    
-            fillRoutine = StartCoroutine(FillWater());
-        }
-    
-        // Called from animation event
-        public void StopFill()
-        {
-            if (particleObject != null)
-                particleObject.SetActive(false);
-        }
-    
-        IEnumerator FillWater()
-        {
-            float elapsed = 0f;
-    
-            Vector3 baseScale = waterTransform.localScale;
-            Vector3 basePos = waterTransform.localPosition;
-    
-            while (elapsed < fillDuration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / fillDuration;
-    
-                float yScale = Mathf.Lerp(minYScale, maxYScale, t);
-    
-                // Scale
-                Vector3 scale = baseScale;
-                scale.y = yScale;
-                waterTransform.localScale = scale;
-    
-                // Offset upward to keep bottom fixed
-                Vector3 pos = basePos;
-                pos.y = (yScale - minYScale) * 0.5f;
-                waterTransform.localPosition = pos;
-    
-                yield return null;
-            }
-        }
+    public class WaterFillWithParticle : MonoBehaviour
+    {
+        [Header("Particle Object")]
+        public GameObject particleObject;
+
+        [Header("Water Object")]
+        public Transform waterTransform;
+
+        [Header("Fill Settings")]
+        public float fillDuration = 2f;
+        public float minZScale = 0f;
+        public float maxZScale = 1f;
+
+        private Coroutine fillRoutine;
+
+        public void StartFill()
+        {
+            if (particleObject != null)
+                particleObject.SetActive(true);
+
+            if (fillRoutine != null)
+                StopCoroutine(fillRoutine);
+
+            fillRoutine = StartCoroutine(FillWater());
+        }
+
+        public void StopFill()
+        {
+            if (particleObject != null)
+                particleObject.SetActive(false);
+        }
+
+        IEnumerator FillWater()
+        {
+            float elapsed = 0f;
+
+            Vector3 baseScale = waterTransform.localScale;
+
+            while (elapsed < fillDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / fillDuration);
+
+                float zScale = Mathf.Lerp(minZScale, maxZScale, t);
+
+                Vector3 scale = baseScale;
+                scale.z = zScale;
+
+                waterTransform.localScale = scale;
+
+                yield return null;
+            }
+
+            Vector3 finalScale = waterTransform.localScale;
+            finalScale.z = maxZScale;
+            waterTransform.localScale = finalScale;
+        }
     }
-    
 }

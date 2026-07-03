@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Test tube_
-  m_Shader: {fileID: 4800000, guid: 3fccf71763700294a80285684db182ec, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 2250d64d46861764cb02914fc231ba58, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36,7 +36,19 @@ Material:
   m_LockedProperties: _WaveSpeed
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Absorption: 2
@@ -47,6 +59,8 @@ Material:
     - _FresnelPower: 5.16
     - _IntersectionFade: 2.96
     - _MeniscusStrength: 0.006
+    - _QueueControl: 0
+    - _QueueOffset: 0
     - _Refraction: 0.035
     - _RefractionStrength: 0.02
     - _RippleScale: 6
@@ -59,11 +73,16 @@ Material:
     - _WobbleX: 0
     - _WobbleZ: 0
     - _YAxisInfluence: 0.25
+    - _ferstional_efect: 3
+    - _fill: 0.01
     m_Colors:
     - _ContainerPos: {r: 0, g: 0, b: 0, a: 0}
     - _DeepColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 0.6509804}
     - _ShallowColor: {r: 0.9686274, g: 0.96853596, b: 0.96078426, a: 0.5176471}
     - _WaterColor: {r: 0.75294125, g: 0.74509805, b: 0.74509805, a: 1}
     - _WaterTint: {r: 0.9, g: 0.96999997, b: 1, a: 0.15}
+    - _fersnal: {r: 0.80914026, g: 0.8207547, b: 0.81526715, a: 1}
+    - _liqude_colur: {r: 0.8330811, g: 0.9150943, b: 0.8344256, a: 1}
+    - _surfacecouler: {r: 0.7692239, g: 0.8113208, b: 0.78594464, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -22,6 +22,8 @@ MonoBehaviour:
   options:
   - 'True '
   - ' False'
+  - Both
+  - Neither
   correctOptionIndex: 1
   correctDropId: 
   correctValue: 0

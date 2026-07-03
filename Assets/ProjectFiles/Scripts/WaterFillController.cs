@@ -6,8 +6,8 @@ namespace HeatingSolutionsInaTestTube
     public class WaterFillController : MonoBehaviour
     {
         public float fillDuration = 3f;
-        public float startScaleY = 0f;
-        public float endScaleY = 1f;
+        public float startScaleZ = 0f;
+        public float endScaleZ = 1f;
     
         private Vector3 initialScale;
         private float timer = 0f;
@@ -16,7 +16,7 @@ namespace HeatingSolutionsInaTestTube
         void Start()
         {
             initialScale = transform.localScale;
-            SetFill(startScaleY);
+            SetFill(startScaleZ);
         }
     
         void Update()
@@ -26,19 +26,19 @@ namespace HeatingSolutionsInaTestTube
             timer += Time.deltaTime;
             float t = Mathf.Clamp01(timer / fillDuration);
     
-            float currentY = Mathf.Lerp(startScaleY, endScaleY, t);
+            float currentY = Mathf.Lerp(startScaleZ, endScaleZ, t);
             SetFill(currentY);
     
             if (t >= 1f)
                 isFilling = false;
         }
     
-        void SetFill(float y)
+        void SetFill(float z)
         {
             transform.localScale = new Vector3(
                 initialScale.x,
-                y,
-                initialScale.z
+                z,
+                initialScale.y
             );
         }
     
